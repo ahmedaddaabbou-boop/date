@@ -500,29 +500,49 @@
         // ============================================================
         const noBtn = document.getElementById('noBtn');
         let hasStartedEvading = false;
+        let noBtnWidth = 0;
+        let noBtnHeight = 0;
 
         function getRandomPositionInViewport() {
-            const buttonRect = noBtn.getBoundingClientRect();
             const padding = 16;
-            const maxX = window.innerWidth - buttonRect.width - padding;
-            const maxY = window.innerHeight - buttonRect.height - padding;
+            // Use the FIXED, remembered size of the button rather than a
+            // fresh getBoundingClientRect() read — reading the rect mid
+            // CSS-transition (or during a reflow caused by switching to
+            // position:fixed) can momentarily return a stale or zeroed
+            // size on some mobile browsers, which previously produced an
+            // out-of-range / off-screen target position.
+            const maxX = Math.max(padding, window.innerWidth - noBtnWidth - padding);
+            const maxY = Math.max(padding, window.innerHeight - noBtnHeight - padding);
 
-            const x = padding + Math.random() * Math.max(0, maxX - padding);
-            const y = padding + Math.random() * Math.max(0, maxY - padding);
-            return { x, y };
+            const x = padding + Math.random() * (maxX - padding);
+            const y = padding + Math.random() * (maxY - padding);
+
+            // Defensive clamp, just in case.
+            return {
+                x: Math.min(Math.max(x, 0), window.innerWidth - noBtnWidth),
+                y: Math.min(Math.max(y, 0), window.innerHeight - noBtnHeight)
+            };
         }
 
         function moveNoButton() {
             if (currentStep !== 1) return;
 
-            const buttonRect = noBtn.getBoundingClientRect();
-
             if (!hasStartedEvading) {
-                // First move: switch to fixed positioning at current spot,
-                // then immediately animate to a new random spot.
+                // Measure ONCE, before we change positioning scheme, and
+                // lock in an explicit pixel width/height. This is the key
+                // fix: once evasive, the button's box size is fixed and
+                // can never be read as 0 or stale, which is what was
+                // causing it to fly off-screen after the first click.
+                const buttonRect = noBtn.getBoundingClientRect();
+                noBtnWidth = buttonRect.width;
+                noBtnHeight = buttonRect.height;
+
+                noBtn.style.width = noBtnWidth + 'px';
+                noBtn.style.height = noBtnHeight + 'px';
                 noBtn.classList.add('evasive');
                 noBtn.style.left = buttonRect.left + 'px';
                 noBtn.style.top = buttonRect.top + 'px';
+
                 // Force a reflow so the browser registers the starting
                 // position before we animate to the new one.
                 noBtn.offsetHeight;
@@ -539,6 +559,8 @@
             noBtn.classList.remove('evasive');
             noBtn.style.left = '';
             noBtn.style.top = '';
+            noBtn.style.width = '';
+            noBtn.style.height = '';
         }
 
         // Single handler for both mouse and touch — covers tap, click,
@@ -563,13 +585,21 @@
         });
 
         window.addEventListener('resize', () => {
-            if (hasStartedEvading && currentStep === 1) {
-                const buttonRect = noBtn.getBoundingClientRect();
-                const maxX = window.innerWidth - buttonRect.width - 16;
-                const maxY = window.innerHeight - buttonRect.height - 16;
-                noBtn.style.left = Math.min(parseFloat(noBtn.style.left), Math.max(0, maxX)) + 'px';
-                noBtn.style.top = Math.min(parseFloat(noBtn.style.top), Math.max(0, maxY)) + 'px';
-            }
+            if (!hasStartedEvading || currentStep !== 1) return;
+
+            const maxX = Math.max(16, window.innerWidth - noBtnWidth - 16);
+            const maxY = Math.max(16, window.innerHeight - noBtnHeight - 16);
+
+            const currentLeft = parseFloat(noBtn.style.left);
+            const currentTop = parseFloat(noBtn.style.top);
+
+            // Guard against NaN (e.g. if style.left was never set yet)
+            // so the button can never be pushed to an invalid position.
+            const safeLeft = Number.isFinite(currentLeft) ? currentLeft : 16;
+            const safeTop = Number.isFinite(currentTop) ? currentTop : 16;
+
+            noBtn.style.left = Math.min(Math.max(safeLeft, 0), maxX) + 'px';
+            noBtn.style.top = Math.min(Math.max(safeTop, 0), maxY) + 'px';
         });
 
         // ============================================================
