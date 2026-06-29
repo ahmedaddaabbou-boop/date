@@ -111,6 +111,7 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 30px;
+            position: relative;
         }
 
         button {
@@ -153,6 +154,8 @@
         .btn-yes {
             background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
             color: white;
+            position: relative;
+            z-index: 3;
         }
 
         .btn-yes:hover {
@@ -163,13 +166,16 @@
         .btn-no {
             background: linear-gradient(135deg, #ffb3c6 0%, #ff8fab 100%);
             color: white;
-            transition: all 0.15s ease-out;
+            transition: left 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                        top 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                        transform 0.2s ease,
+                        box-shadow 0.2s ease;
             will-change: transform, left, top;
+            z-index: 2;
         }
 
         .btn-no.evasive {
-            position: absolute;
-            transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: fixed;
         }
 
         .btn-no:hover {
@@ -330,6 +336,11 @@
                 width: 100%;
                 max-width: 300px;
             }
+
+            .btn-no.evasive {
+                width: auto;
+                max-width: none;
+            }
         }
 
         @supports (padding: max(0px)) {
@@ -365,8 +376,8 @@
             <div class="emoji">💕</div>
             <h1>Will you go on a date with me?</h1>
             <div class="button-group">
-                <button class="btn-yes" id="yesBtn">Yes</button>
-                <button class="btn-no" id="noBtn">No</button>
+                <button class="btn-yes" id="yesBtn" type="button">Yes</button>
+                <button class="btn-no" id="noBtn" type="button">No</button>
             </div>
         </div>
 
@@ -375,8 +386,8 @@
             <h2>Pick a date for our romantic date</h2>
             <input type="date" id="datePicker" min="">
             <div class="button-group">
-                <button class="btn-back" id="backBtn1">Back</button>
-                <button class="btn-next" id="nextBtn1">Next</button>
+                <button class="btn-back" id="backBtn1" type="button">Back</button>
+                <button class="btn-next" id="nextBtn1" type="button">Next</button>
             </div>
         </div>
 
@@ -391,21 +402,23 @@
                 <div class="activity-card" data-activity="cinema">🎬 Cinema</div>
             </div>
             <div class="button-group">
-                <button class="btn-back" id="backBtn2">Back</button>
-                <button class="btn-next" id="nextBtn2">Next</button>
+                <button class="btn-back" id="backBtn2" type="button">Back</button>
+                <button class="btn-next" id="nextBtn2" type="button">Next</button>
             </div>
         </div>
 
         <!-- Screen 4: Final -->
         <div class="screen" id="screen4">
             <div class="emoji">💖</div>
-        <div class="final-message">Уже не могу дождаться, когда мы увидимся ❤️</div>
+            <div class="final-message">Уже не могу дождаться, когда мы увидимся ❤️</div>
             <p style="color: #d63384; font-size: 1.2em; margin-top: 20px;" id="finalDetails"></p>
         </div>
     </div>
 
     <script>
+        // ============================================================
         // State management
+        // ============================================================
         let currentStep = 1;
         let selectedDate = '';
         let selectedActivity = '';
@@ -415,11 +428,13 @@
         const today = new Date().toISOString().split('T')[0];
         datePicker.setAttribute('min', today);
 
-        // Create floating hearts background
+        // ============================================================
+        // Floating hearts background
+        // ============================================================
         function createFloatingHearts() {
             const container = document.getElementById('heartsContainer');
             const hearts = ['💕', '💖', '💗', '💓', '💝', '❤️'];
-            
+
             for (let i = 0; i < 15; i++) {
                 const heart = document.createElement('div');
                 heart.className = 'heart';
@@ -432,7 +447,6 @@
             }
         }
 
-        // Create heart particles for final screen
         function createHeartParticles() {
             const container = document.querySelector('.container');
             for (let i = 0; i < 20; i++) {
@@ -448,8 +462,15 @@
             }
         }
 
+        // ============================================================
         // Screen navigation
+        // ============================================================
         function showScreen(screenNumber) {
+            // Reset the "No" button whenever we return to screen 1
+            if (screenNumber === 1) {
+                resetNoButton();
+            }
+
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
@@ -465,268 +486,101 @@
                     'park': 'Walk in the park',
                     'cinema': 'Cinema'
                 };
-                document.getElementById('finalDetails').textContent = 
+                document.getElementById('finalDetails').textContent =
                     `Date: ${selectedDate} | Activity: ${activityNames[selectedActivity]}`;
             }
         }
 
-        // Evasive "No" button behavior - COMPLETELY REWRITTEN FOR RELIABILITY
+        // ============================================================
+        // Evasive "No" button
+        // Single source of truth: one pointerdown handler, no
+        // competing click/pointerdown/pointermove listeners fighting
+        // each other (that was the cause of the mobile "Yes" bug too,
+        // since a global pointermove handler was interfering with taps).
+        // ============================================================
         const noBtn = document.getElementById('noBtn');
-        const buttonGroup = document.querySelector('.button-group');
         let hasStartedEvading = false;
-        let isMoving = false;
-        let animationFrameId = null;
-        let lastPosition = { x: 0, y: 0 };
-        let targetPosition = { x: 0, y: 0 };
 
-        // Get container bounds with padding
-        function getContainerBounds() {
-            const containerRect = document.querySelector('.container').getBoundingClientRect();
+        function getRandomPositionInViewport() {
             const buttonRect = noBtn.getBoundingClientRect();
-            const padding = 10;
-            
-            return {
-                minX: containerRect.left + padding,
-                maxX: containerRect.right - buttonRect.width - padding,
-                minY: containerRect.top + padding,
-                maxY: containerRect.bottom - buttonRect.height - padding
-            };
+            const padding = 16;
+            const maxX = window.innerWidth - buttonRect.width - padding;
+            const maxY = window.innerHeight - buttonRect.height - padding;
+
+            const x = padding + Math.random() * Math.max(0, maxX - padding);
+            const y = padding + Math.random() * Math.max(0, maxY - padding);
+            return { x, y };
         }
 
-        // Convert viewport coordinates to container-relative
-        function viewportToContainer(viewportX, viewportY) {
-            const containerRect = document.querySelector('.container').getBoundingClientRect();
-            return {
-                x: viewportX - containerRect.left,
-                y: viewportY - containerRect.top
-            };
-        }
+        function moveNoButton() {
+            if (currentStep !== 1) return;
 
-        // Get random position within bounds
-        function getRandomPosition() {
-            const bounds = getContainerBounds();
-            const viewportX = bounds.minX + Math.random() * (bounds.maxX - bounds.minX);
-            const viewportY = bounds.minY + Math.random() * (bounds.maxY - bounds.minY);
-            return viewportToContainer(viewportX, viewportY);
-        }
-
-        // Start evading - called immediately on any interaction
-        function startEvading() {
-            if (hasStartedEvading) return;
-            hasStartedEvading = true;
-            
-            // Get current position and convert to absolute
-            const containerRect = document.querySelector('.container').getBoundingClientRect();
             const buttonRect = noBtn.getBoundingClientRect();
-            
-            noBtn.style.position = 'absolute';
-            noBtn.style.left = (buttonRect.left - containerRect.left) + 'px';
-            noBtn.style.top = (buttonRect.top - containerRect.top) + 'px';
-            noBtn.classList.add('evasive');
-            
-            // Set initial target
-            const currentPos = viewportToContainer(buttonRect.left, buttonRect.top);
-            lastPosition = { ...currentPos };
-            targetPosition = getRandomPosition();
-            
-            isMoving = true;
-            startMovementLoop();
-        }
 
-        // Smooth movement using requestAnimationFrame
-        function startMovementLoop() {
-            if (!isMoving) return;
-            
-            function move() {
-                if (!isMoving) return;
-                
-                const currentBounds = getContainerBounds();
-                
-                // Check if we've reached target (within 5px)
-                const dx = targetPosition.x - lastPosition.x;
-                const dy = targetPosition.y - lastPosition.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < 5) {
-                    // Reached target, pick new random position
-                    targetPosition = getRandomPosition();
-                }
-                
-                // Smooth interpolation (ease towards target)
-                const speed = 0.15; // Smoothness factor
-                lastPosition.x += (targetPosition.x - lastPosition.x) * speed;
-                lastPosition.y += (targetPosition.y - lastPosition.y) * speed;
-                
-                // Clamp to bounds
-                lastPosition.x = Math.max(currentBounds.minX - document.querySelector('.container').getBoundingClientRect().left,
-                                          Math.min(currentBounds.maxX - document.querySelector('.container').getBoundingClientRect().left,
-                                                   lastPosition.x));
-                lastPosition.y = Math.max(currentBounds.minY - document.querySelector('.container').getBoundingClientRect().top,
-                                          Math.min(currentBounds.maxY - document.querySelector('.container').getBoundingClientRect().top,
-                                                   lastPosition.y));
-                
-                // Apply position
-                noBtn.style.left = lastPosition.x + 'px';
-                noBtn.style.top = lastPosition.y + 'px';
-                
-                animationFrameId = requestAnimationFrame(move);
+            if (!hasStartedEvading) {
+                // First move: switch to fixed positioning at current spot,
+                // then immediately animate to a new random spot.
+                noBtn.classList.add('evasive');
+                noBtn.style.left = buttonRect.left + 'px';
+                noBtn.style.top = buttonRect.top + 'px';
+                // Force a reflow so the browser registers the starting
+                // position before we animate to the new one.
+                noBtn.offsetHeight;
+                hasStartedEvading = true;
             }
-            
-            animationFrameId = requestAnimationFrame(move);
-        }
 
-        // Stop movement
-        function stopMovement() {
-            isMoving = false;
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-        }
-
-        // Instant teleport (for click/tap interception)
-        function teleportButton() {
-            const newPos = getRandomPosition();
-            lastPosition = { ...newPos };
-            targetPosition = { ...newPos };
-            
-            // Disable transition for instant move
-            noBtn.style.transition = 'none';
+            const newPos = getRandomPositionInViewport();
             noBtn.style.left = newPos.x + 'px';
             noBtn.style.top = newPos.y + 'px';
-            
-            // Force reflow
-            noBtn.offsetHeight;
-            
-            // Re-enable transition
-            noBtn.style.transition = 'all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
         }
 
-        // Universal pointer down handler - catches ALL interaction attempts
-        function handlePointerDown(e) {
-            if (currentStep !== 1) return;
-            
-            const buttonRect = noBtn.getBoundingClientRect();
-            
-            // Check if pointer is over or near the button (larger hit area for reliability)
-            const isNearButton = 
-                e.clientX >= buttonRect.left - 50 &&
-                e.clientX <= buttonRect.right + 50 &&
-                e.clientY >= buttonRect.top - 50 &&
-                e.clientY <= buttonRect.bottom + 50;
-            
-            if (isNearButton) {
-                // Immediately start evading and teleport
-                if (!hasStartedEvading) {
-                    startEvading();
-                } else {
-                    teleportButton();
-                }
-                
-                // Block the interaction
-                e.preventDefault();
-                e.stopPropagation();
-            }
+        function resetNoButton() {
+            hasStartedEvading = false;
+            noBtn.classList.remove('evasive');
+            noBtn.style.left = '';
+            noBtn.style.top = '';
         }
-        
-        // Direct click prevention on the No button itself
-        noBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            if (!hasStartedEvading) {
-                startEvading();
-            } else {
-                teleportButton();
-            }
-        });
-        
-        // Direct pointerdown on the button for immediate response
+
+        // Single handler for both mouse and touch — covers tap, click,
+        // and hover-style approach. Using pointerdown (fires reliably on
+        // mobile, before any click) instead of mixing click + pointerdown.
         noBtn.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            
-            if (!hasStartedEvading) {
-                startEvading();
-            } else {
-                teleportButton();
+            moveNoButton();
+        });
+
+        // Also dodge when the pointer gets close (desktop hover-evade
+        // feel) — but only after the user actually tried touching/moving
+        // near it via pointerover, which works for mouse without
+        // interfering with mobile taps elsewhere on the page.
+        noBtn.addEventListener('pointerenter', () => {
+            // Only desktop mice send pointerenter from hovering without a
+            // touch; this keeps the playful "runs away on approach" feel
+            // on desktop while staying out of the way of mobile taps.
+            if (window.matchMedia('(pointer: fine)').matches) {
+                moveNoButton();
             }
         });
 
-        // Handle pointer move to start evasion when cursor approaches
-        function handlePointerMove(e) {
-            if (currentStep !== 1 || hasStartedEvading) return;
-            
-            const buttonRect = noBtn.getBoundingClientRect();
-            const buttonCenterX = buttonRect.left + buttonRect.width / 2;
-            const buttonCenterY = buttonRect.top + buttonRect.height / 2;
-            
-            const distance = Math.sqrt(
-                Math.pow(e.clientX - buttonCenterX, 2) + 
-                Math.pow(e.clientY - buttonCenterY, 2)
-            );
-            
-            // Start evading when pointer is within 100px
-            if (distance < 100) {
-                startEvading();
+        window.addEventListener('resize', () => {
+            if (hasStartedEvading && currentStep === 1) {
+                const buttonRect = noBtn.getBoundingClientRect();
+                const maxX = window.innerWidth - buttonRect.width - 16;
+                const maxY = window.innerHeight - buttonRect.height - 16;
+                noBtn.style.left = Math.min(parseFloat(noBtn.style.left), Math.max(0, maxX)) + 'px';
+                noBtn.style.top = Math.min(parseFloat(noBtn.style.top), Math.max(0, maxY)) + 'px';
             }
-        }
-
-        // Handle resize/orientation change to keep button in bounds
-        function handleResize() {
-            if (!hasStartedEvading) return;
-            
-            const bounds = getContainerBounds();
-            const containerRect = document.querySelector('.container').getBoundingClientRect();
-            
-            // Clamp current position to new bounds
-            lastPosition.x = Math.max(0,
-                Math.min(bounds.maxX - containerRect.left, lastPosition.x));
-            lastPosition.y = Math.max(0,
-                Math.min(bounds.maxY - containerRect.top, lastPosition.y));
-            
-            noBtn.style.left = lastPosition.x + 'px';
-            noBtn.style.top = lastPosition.y + 'px';
-        }
-
-        // Use ONLY pointer events - unified for mouse and touch
-        document.addEventListener('pointermove', handlePointerMove, { passive: true });
-        
-        // Handle window resize
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('orientationchange', () => {
-            setTimeout(handleResize, 100);
         });
 
-        // Event listeners
+        // ============================================================
+        // "Yes" button — simple, single pointerdown-driven click.
+        // (Previously this had both a click AND a preventDefault'ing
+        // pointerdown listener, which on many mobile browsers caused
+        // the click event to never fire, making Yes appear "stuck".)
+        // ============================================================
         document.getElementById('yesBtn').addEventListener('click', () => {
             showScreen(2);
         });
-
-        document.getElementById('yesBtn').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            showScreen(2);
-        });
-
-        // Reset No button state when going back to screen 1
-        const originalShowScreen = showScreen;
-        showScreen = function(screenNumber) {
-            if (screenNumber === 1) {
-                // Reset No button to normal flow
-                stopMovement();
-                noBtn.classList.remove('evasive');
-                noBtn.style.position = '';
-                noBtn.style.left = '';
-                noBtn.style.top = '';
-                noBtn.style.transition = '';
-                hasStartedEvading = false;
-                isMoving = false;
-                lastPosition = { x: 0, y: 0 };
-                targetPosition = { x: 0, y: 0 };
-            }
-            originalShowScreen(screenNumber);
-        };
 
         document.getElementById('nextBtn1').addEventListener('click', () => {
             selectedDate = datePicker.value;
@@ -745,18 +599,10 @@
             showScreen(2);
         });
 
-        // Activity selection (with pointer events for mobile)
+        // Activity selection — single click handler per card (no
+        // duplicate pointerdown handler racing it).
         document.querySelectorAll('.activity-card').forEach(card => {
             card.addEventListener('click', () => {
-                document.querySelectorAll('.activity-card').forEach(c => {
-                    c.classList.remove('selected');
-                });
-                card.classList.add('selected');
-                selectedActivity = card.dataset.activity;
-            });
-            
-            card.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
                 document.querySelectorAll('.activity-card').forEach(c => {
                     c.classList.remove('selected');
                 });
@@ -766,15 +612,6 @@
         });
 
         document.getElementById('nextBtn2').addEventListener('click', () => {
-            if (selectedActivity) {
-                showScreen(4);
-            } else {
-                alert('Please select an activity!');
-            }
-        });
-        
-        document.getElementById('nextBtn2').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
             if (selectedActivity) {
                 showScreen(4);
             } else {
