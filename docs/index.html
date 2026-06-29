@@ -1,856 +1,656 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TechHaven | Premium Computer Parts & Systems</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://kit.fontawesome.com/a81368914c.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="techhaven.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>A Date Question ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0ec 50%, #ffd6e5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating hearts background */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 105, 180, 0.3);
+            font-size: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+                opacity: 0.6;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: clamp(30px, 5vh, 50px) clamp(20px, 4vw, 40px);
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.2);
+        }
+
+        h2 {
+            color: #d63384;
+            font-size: 2em;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            position: relative;
+        }
+
+        button {
+            padding: clamp(12px, 3vh, 15px) clamp(30px, 6vw, 40px);
+            font-size: clamp(1em, 2.5vw, 1.1em);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
+            color: white;
+            position: relative;
+            z-index: 3;
+        }
+
+        .btn-yes:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 64, 129, 0.5);
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #ffb3c6 0%, #ff8fab 100%);
+            color: white;
+            transition: left 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                        top 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+                        transform 0.2s ease,
+                        box-shadow 0.2s ease;
+            will-change: transform, left, top;
+            z-index: 2;
+        }
+
+        .btn-no.evasive {
+            position: fixed;
+        }
+
+        .btn-no:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 143, 171, 0.5);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 64, 129, 0.5);
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #ffb3c6 0%, #ff8fab 100%);
+            color: white;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 143, 171, 0.5);
+        }
+
+        input[type="date"] {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            border: 2px solid #ffb3c6;
+            border-radius: 15px;
+            background: white;
+            color: #d63384;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #ff4081;
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.1);
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .activity-card {
+            padding: clamp(15px, 3vh, 20px) clamp(15px, 3vw, 20px);
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0ec 100%);
+            border: 2px solid #ffb3c6;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(1em, 2.5vw, 1.1em);
+            color: #d63384;
+            font-weight: 600;
+            min-height: 60px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+            background: linear-gradient(135deg, #ffe0ec 0%, #ffd6e5 100%);
+        }
+
+        .activity-card.selected {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
+            color: white;
+            border-color: #ff4081;
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 64, 129, 0.4);
+        }
+
+        .final-message {
+            font-size: 2.5em;
+            color: #d63384;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .heart-particle {
+            position: absolute;
+            color: #ff4081;
+            font-size: 24px;
+            animation: heartFloat 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-50px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: clamp(1.5em, 6vw, 2.5em);
+            }
+            
+            h2 {
+                font-size: clamp(1.2em, 5vw, 2em);
+            }
+            
+            .button-group {
+                gap: 15px;
+            }
+            
+            .activity-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .final-message {
+                font-size: clamp(1.5em, 6vw, 2.5em);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95vw;
+                border-radius: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .btn-no.evasive {
+                width: auto;
+                max-width: none;
+            }
+        }
+
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+                padding-bottom: max(30px, env(safe-area-inset-bottom));
+            }
+        }
+
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="topbar">
-        <a href="#home" class="logo"><i class="fas fa-microchip"></i> TechHaven</a>
-        <button class="menu-toggle icon-btn" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
-        <nav>
-          <a href="#home" class="active">Home</a>
-          <a href="#products">Products</a>
-          <a href="#laptops">Laptops</a>
-          <a href="#desktops">Desktops</a>
-          <a href="#accessories">Accessories</a>
-          <a href="#cart" class="cart-link">Cart</a>
-          <a href="login.html" class="login-link">Login</a>
-        </nav>
-        <div class="action-group">
-          <button class="icon-btn cart-toggle" aria-label="Open cart"><i class="fas fa-shopping-cart"></i> <span id="cartCount">0</span></button>
-          <button class="icon-btn login-toggle" aria-label="Login/logout"><i class="fas fa-user"></i></button>
-        </div>
-      </div>
-    </header>
+    <div class="hearts-container" id="heartsContainer"></div>
 
-    <main>
-      <section class="hero" id="home">
-        <div class="hero-banner">
-          <div class="carousel" id="heroCarousel">
-            <article class="slide active" data-index="0">
-              <div class="slide-content">
-                <small>Premium performance starts here</small>
-                <h1>Build, Upgrade, and Power Your Next System</h1>
-                <p>Shop high-performance laptops, powerful desktops, and curated accessories for every gamer, creator, and professional.</p>
-                <div class="hero-actions">
-                  <button class="cta-btn" data-target="products">Shop Latest Deals</button>
-                  <button class="cta-btn secondary-btn" data-target="newsletter">Join our newsletter</button>
-                </div>
-              </div>
-            </article>
-
-            <article class="slide" data-index="1">
-              <div class="slide-content">
-                <small>Ready for peak speed?</small>
-                <h1>Exclusive Notebook Series with RTX Graphics</h1>
-                <p>Discover slim laptops with desktop-level GPUs, ultra-fast SSD configurations, and cooling built for serious work.</p>
-                <div class="hero-actions">
-                  <button class="cta-btn" data-target="laptops">Explore Laptops</button>
-                </div>
-              </div>
-            </article>
-
-            <article class="slide" data-index="2">
-              <div class="slide-content">
-                <small>Ultimate workstation essentials</small>
-                <h1>Desktop PC Bundles for Gamers & Creators</h1>
-                <p>Choose fully configured systems with premium parts, fast delivery, and power to handle 4K editing or competitive gaming.</p>
-                <div class="hero-actions">
-                  <button class="cta-btn" data-target="desktops">Browse Desktops</button>
-                </div>
-              </div>
-            </article>
-
-            <div class="carousel-controls" id="carouselControls"></div>
-          </div>
-        </div>
-
-        <div class="quick-filters">
-          <article class="feature-card">
-            <h3>Free Express Delivery</h3>
-            <p>On orders over $150. Fast, tracked shipping across the continental U.S.</p>
-            <small>Estimated arrival within 2-4 business days</small>
-          </article>
-          <article class="feature-card">
-            <h3>Supports Instant Checkout</h3>
-            <p>Save carts, apply discounts, and use secure payment methods at checkout.</p>
-            <small>Local storage keeps your cart ready</small>
-          </article>
-          <article class="feature-card">
-            <h3>Trusted Tech Experts</h3>
-            <p>Enjoy product support and buying advice for every component in our catalog.</p>
-            <small>24/7 customer care and setup guides</small>
-          </article>
-        </div>
-      </section>
-
-      <section class="category-showcase">
-        <div class="section-heading">
-          <small>Top categories</small>
-          <h2>Shop by Device</h2>
-          <p>Premium laptops, high-performance desktops, and essentials for every modern workspace.</p>
-        </div>
-        <div class="device-grid">
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80" alt="Laptop category" />
-            <div>
-              <small>Laptops</small>
-              <h3>Portable power for creators</h3>
-              <p>Thin, fast, and ready for productivity or gaming on the go.</p>
-              <button class="cta-btn" data-target="laptops">Shop Laptops</button>
+    <div class="container">
+        <!-- Screen 1: Landing -->
+        <div class="screen active" id="screen1">
+            <div class="emoji">💕</div>
+            <h1>Will you go on a date with me?</h1>
+            <div class="button-group">
+                <button class="btn-yes" id="yesBtn" type="button">Yes</button>
+                <button class="btn-no" id="noBtn" type="button">No</button>
             </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80" alt="Desktop category" />
-            <div>
-              <small>Desktops</small>
-              <h3>Built for serious performance</h3>
-              <p>Fully configured systems with premium components and upgrade paths.</p>
-              <button class="cta-btn" data-target="desktops">Shop Desktops</button>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80" alt="Accessories category" />
-            <div>
-              <small>Accessories</small>
-              <h3>Essentials for every setup</h3>
-              <p>Keyboards, mice, headsets, and more to complete your desk.</p>
-              <button class="cta-btn" data-target="accessories">Shop Accessories</button>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="device-section" id="laptops">
-        <div class="section-heading">
-          <small>Laptop Collection</small>
-          <h2>Mobile Powerhouses</h2>
-        </div>
-        <div class="device-grid">
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=80" alt="Laptop preview" />
-            <div>
-              <h3>Creator Series 14</h3>
-              <p>Lightweight chassis with RTX performance for editing and streaming.</p>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1587825140708-0ef74c5d0d81?auto=format&fit=crop&w=900&q=80" alt="Laptop preview" />
-            <div>
-              <h3>NeoBook Pro 16</h3>
-              <p>Large display, powerful CPU, and premium cooling for intense workflows.</p>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1517430816045-df4b7de01cbd?auto=format&fit=crop&w=900&q=80" alt="Laptop preview" />
-            <div>
-              <h3>Stealth Gamer 15</h3>
-              <p>Fast refresh rates, RGB lighting, and desktop-class graphics in a compact body.</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="device-section" id="desktops">
-        <div class="section-heading">
-          <small>Desktop Showcase</small>
-          <h2>Stationary Powerhouses</h2>
-        </div>
-        <div class="device-grid">
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=80" alt="Desktop preview" />
-            <div>
-              <h3>Carbon Tower X</h3>
-              <p>Ultra-fast performance for video editing, 3D work, and pro creation.</p>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80&sat=-20" alt="Desktop preview" />
-            <div>
-              <h3>PowerCore 900</h3>
-              <p>High-end components with custom cooling, ideal for gaming and workstation use.</p>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1527430253228-e93688616381?auto=format&fit=crop&w=900&q=80" alt="Desktop preview" />
-            <div>
-              <h3>WorkStation Elite</h3>
-              <p>Reliable desktop build for business computing, design, and daily productivity.</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="device-section" id="accessories">
-        <div class="section-heading">
-          <small>Accessories</small>
-          <h2>Complete Your Setup</h2>
-        </div>
-        <div class="device-grid">
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80&sat=-30" alt="Headset preview" />
-            <div>
-              <h3>Immersive Audio</h3>
-              <p>Premium headsets built for clear chat and immersive sound.</p>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1555617117-08d1bcd4fb40?auto=format&fit=crop&w=900&q=80" alt="Keyboard preview" />
-            <div>
-              <h3>Pro Mechanical Keyboards</h3>
-              <p>Responsive switches and bold style for every desk environment.</p>
-            </div>
-          </article>
-          <article class="device-card">
-            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80&sat=-20" alt="Mouse preview" />
-            <div>
-              <h3>Precision Mice</h3>
-              <p>Wired and wireless options with advanced tracking and comfort.</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="featured-collections">
-        <div class="section-heading">
-          <small>Featured collections</small>
-          <h2>Explore our latest picks</h2>
-          <p>Browse curated collections of laptops, desktops, and accessories for every need.</p>
-        </div>
-        <div class="collection-grid">
-          <article class="collection-card">
-            <div>
-              <span>Best sellers</span>
-              <h3>Top rated setups</h3>
-              <p>Popular systems and accessories chosen by thousands of happy customers.</p>
-            </div>
-            <button class="cta-btn" data-target="products">Browse All</button>
-          </article>
-          <article class="collection-card dark">
-            <div>
-              <span>Laptop deals</span>
-              <h3>Travel-ready notebooks</h3>
-              <p>Powerful laptops with fast CPUs and premium displays for mobile productivity.</p>
-            </div>
-            <button class="cta-btn" data-target="laptops">Shop Laptops</button>
-          </article>
-          <article class="collection-card">
-            <div>
-              <span>Desktop rigs</span>
-              <h3>Performance towers</h3>
-              <p>Desktop builds tuned for gaming, creation, and serious multitasking.</p>
-            </div>
-            <button class="cta-btn" data-target="desktops">Shop Desktops</button>
-          </article>
-          <article class="collection-card dark">
-            <div>
-              <span>Accessories</span>
-              <h3>Everyday essentials</h3>
-              <p>Complete your setup with keyboards, mice, audio, and workspace tools.</p>
-            </div>
-            <button class="cta-btn" data-target="accessories">Shop Accessories</button>
-          </article>
-        </div>
-      </section>
-
-      <section class="products" id="products">
-        <div class="controls">
-          <div class="search-wrap">
-            <input type="search" id="searchInput" placeholder="Search by product name or feature..." aria-label="Product search" />
-            <button class="icon-btn" id="searchBtn"><i class="fas fa-search"></i></button>
-          </div>
-          <div class="filters">
-            <div class="filter-pill active" data-category="all">All</div>
-            <div class="filter-pill" data-category="Laptops">Laptops</div>
-            <div class="filter-pill" data-category="Desktops">Desktops</div>
-            <div class="filter-pill" data-category="Accessories">Accessories</div>
-            <input type="range" id="priceRange" min="0" max="3200" value="3200" />
-          </div>
         </div>
 
-        <div class="product-grid" id="productGrid"></div>
-      </section>
-
-      <section class="newsletter" id="newsletter">
-        <div>
-          <h2>Stay ahead with TechHaven updates</h2>
-          <p>Get exclusive offers, new releases, and insider tips sent directly to your inbox.</p>
-        </div>
-        <form id="newsletterForm">
-          <input type="email" id="newsletterEmail" placeholder="Enter your email address" required />
-          <button type="submit">Subscribe</button>
-        </form>
-        <small id="newsletterMessage">No spam. Unsubscribe anytime.</small>
-      </section>
-    </main>
-
-    <footer>
-      <div class="footer-grid">
-        <div class="footer-card">
-          <h4>About TechHaven</h4>
-          <p>TechHaven is your destination for premium computer hardware, optimized systems, and curated accessories. Built for performance, reliability, and modern design.</p>
-        </div>
-        <div class="footer-card">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="#">Order tracking</a></li>
-            <li><a href="#">Warranty & returns</a></li>
-            <li><a href="#">Technical support</a></li>
-            <li><a href="#">Payment options</a></li>
-          </ul>
-        </div>
-        <div class="footer-card">
-          <h4>Contact</h4>
-          <p>support@techhaven.com</p>
-          <p>+1 (800) 555-2496</p>
-          <p>Mon-Fri 8am - 8pm EST</p>
-        </div>
-        <div class="footer-card">
-          <h4>Follow Us</h4>
-          <div class="footer-social">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-linkedin-in"></i></a>
-          </div>
-        </div>
-      </div>
-      <p class="footer-note">© 2026 TechHaven. All rights reserved. Designed for high-performance computing and modern shoppers.</p>
-    </footer>
-  </div>
-
-  <div class="cart-panel" id="cartPanel" aria-hidden="true">
-    <div class="overlay" id="cartOverlay"></div>
-    <aside class="cart-drawer" aria-label="Shopping cart">
-      <div class="cart-header">
-        <div>
-          <h2>Your Cart</h2>
-          <small id="cartStatus">0 items in your cart</small>
-        </div>
-        <button class="cart-close icon-btn" aria-label="Close cart"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="cart-items" id="cartItems"></div>
-      <div class="cart-summary">
-        <div class="summary-row"><span>Subtotal</span><strong id="subtotalValue">$0.00</strong></div>
-        <div class="summary-row"><span>Shipping</span><strong id="shippingValue">$0.00</strong></div>
-        <div class="summary-row"><span>Tax</span><strong id="taxValue">$0.00</strong></div>
-        <div class="summary-row"><span>Discount</span><strong id="discountValue">-$0.00</strong></div>
-        <div class="total-row"><span>Total</span><strong id="totalValue">$0.00</strong></div>
-      </div>
-      <div class="promo-group">
-        <label for="promoCode">Discount code</label>
-        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-          <input id="promoCode" placeholder="Enter code (TECH10, HAVEN20, FREEDEL)" />
-          <button id="applyPromo">Apply</button>
-        </div>
-        <small id="promoMessage"></small>
-      </div>
-      <div class="shipping-group">
-        <label for="shippingZip">Shipping estimator</label>
-        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-          <input id="shippingZip" placeholder="ZIP code" pattern="[0-9]{5}" />
-          <button id="estimateShipping">Estimate</button>
-        </div>
-        <small id="shippingMessage">Free shipping for orders over $150.</small>
-      </div>
-      <div class="login-panel" id="loginPanel">
-        <div id="loginStatus">
-          <p>Welcome, guest. Sign in to sync your saved cart and wishlist.</p>
-        </div>
-        <button id="authButton">Login</button>
-      </div>
-      <button class="checkout-btn">Proceed to Checkout</button>
-    </aside>
-  </div>
-
-  <div class="toast-container" id="toastContainer"></div>
-  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
-
-  <script>
-    const products = [
-      {
-        id: 'th-vortex-14',
-        name: 'Vortex 14 Pro Laptop',
-        category: 'Laptops',
-        price: 1799,
-        rating: 4.8,
-        reviews: 512,
-        description: '14" OLED, RTX 4060, 32GB RAM, 1TB SSD, Thunderbolt 4',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80',
-        stock: 18
-      },
-      {
-        id: 'th-quantum-32',
-        name: 'Quantum X Desktop',
-        category: 'Desktops',
-        price: 2299,
-        rating: 4.9,
-        reviews: 319,
-        description: 'Intel i9, RTX 4080, 64GB RAM, 2TB NVMe, liquid cooled',
-        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80',
-        stock: 12
-      },
-      {
-        id: 'th-arc-gear-7',
-        name: 'ArcGear Wireless Mouse',
-        category: 'Accessories',
-        price: 69,
-        rating: 4.6,
-        reviews: 1450,
-        description: 'Ergonomic RGB gaming mouse with programmable buttons',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80&sat=-30',
-        stock: 64
-      },
-      {
-        id: 'th-nova-speaker',
-        name: 'Nova Soundbar',
-        category: 'Accessories',
-        price: 129,
-        rating: 4.4,
-        reviews: 680,
-        description: 'Compact Bluetooth speaker with immersive stereo sound',
-        image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80',
-        stock: 42
-      },
-      {
-        id: 'th-glide-keyboard',
-        name: 'Glide Pro Mechanical Keyboard',
-        category: 'Accessories',
-        price: 149,
-        rating: 4.7,
-        reviews: 830,
-        description: 'Hot-swappable switches, per-key RGB, macro engine',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80&sat=-20',
-        stock: 28
-      },
-      {
-        id: 'th-zenbook-16',
-        name: 'ZenBook 16 Creator',
-        category: 'Laptops',
-        price: 2099,
-        rating: 4.7,
-        reviews: 234,
-        description: '16" QHD, RTX 4060, 32GB RAM, lightweight aluminum chassis',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80&sat=-10',
-        stock: 15
-      },
-      {
-        id: 'th-fusion-18',
-        name: 'Fusion Workstation',
-        category: 'Desktops',
-        price: 1449,
-        rating: 4.6,
-        reviews: 282,
-        description: 'AMD Ryzen 9, RTX 4070, 32GB DDR5, 1TB SSD',
-        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80&sat=-10',
-        stock: 21
-      },
-      {
-        id: 'th-pulse-headset',
-        name: 'Pulse RGB Headset',
-        category: 'Accessories',
-        price: 99,
-        rating: 4.5,
-        reviews: 940,
-        description: 'Noise-canceling mic, memory foam, 7.1 surround sound',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80&sat=-30',
-        stock: 34
-      }
-    ];
-
-    const cart = JSON.parse(localStorage.getItem('techhavenCart') || '[]');
-    const userState = JSON.parse(localStorage.getItem('techhavenUser') || 'null');
-    const wishlist = JSON.parse(localStorage.getItem('techhavenWishlist') || '[]');
-
-    const productGrid = document.getElementById('productGrid');
-    const cartPanel = document.getElementById('cartPanel');
-    const cartOverlay = document.getElementById('cartOverlay');
-    const cartItemsEl = document.getElementById('cartItems');
-    const cartCount = document.getElementById('cartCount');
-    const cartStatus = document.getElementById('cartStatus');
-    const subtotalValue = document.getElementById('subtotalValue');
-    const shippingValue = document.getElementById('shippingValue');
-    const taxValue = document.getElementById('taxValue');
-    const discountValue = document.getElementById('discountValue');
-    const totalValue = document.getElementById('totalValue');
-    const promoMessage = document.getElementById('promoMessage');
-    const shippingMessage = document.getElementById('shippingMessage');
-    const loginStatus = document.getElementById('loginStatus');
-    const authButton = document.getElementById('authButton');
-    const promoCodeInput = document.getElementById('promoCode');
-    const shippingZipInput = document.getElementById('shippingZip');
-    const estimateShippingBtn = document.getElementById('estimateShipping');
-    const applyPromoBtn = document.getElementById('applyPromo');
-    const searchInput = document.getElementById('searchInput');
-    const priceRange = document.getElementById('priceRange');
-    const filterPills = document.querySelectorAll('.filter-pill');
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navMenu = document.querySelector('nav');
-    const backToTop = document.getElementById('backToTop');
-    const toastContainer = document.getElementById('toastContainer');
-    const subscribeForm = document.getElementById('newsletterForm');
-    const subscribeEmail = document.getElementById('newsletterEmail');
-    const newsletterMessage = document.getElementById('newsletterMessage');
-    const heroCarousel = document.getElementById('heroCarousel');
-    const carouselControls = document.getElementById('carouselControls');
-    const heroButtons = document.querySelectorAll('.hero-actions button');
-
-    let activeCategory = 'all';
-    let searchTerm = '';
-    let priceFilter = Number(priceRange.value);
-    let activePromo = null;
-    let shippingCost = 0;
-    let currentUser = userState;
-    let activeSlide = 0;
-    let carouselInterval;
-
-    const discountCodes = {
-      TECH10: 10,
-      HAVEN20: 20,
-      FREEDEL: 0
-    };
-
-    function saveState() {
-      localStorage.setItem('techhavenCart', JSON.stringify(cart));
-      localStorage.setItem('techhavenUser', JSON.stringify(currentUser));
-      localStorage.setItem('techhavenWishlist', JSON.stringify(wishlist));
-    }
-
-    function formatPrice(value) {
-      return `$${value.toFixed(2)}`;
-    }
-
-    function renderStars(rating) {
-      const filled = Math.floor(rating);
-      let stars = '';
-      for (let i = 0; i < 5; i++) {
-        stars += `<i class="fas fa-star" style="opacity:${i < filled ? '1' : '0.25'}"></i>`;
-      }
-      return stars;
-    }
-
-    function toast(message, type = 'info') {
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.innerHTML = `<strong>${type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info'}</strong><p style='margin:0.55rem 0 0;'>${message}</p>`;
-      toastContainer.appendChild(toast);
-      setTimeout(() => toast.remove(), 3800);
-    }
-
-    function renderProducts() {
-      productGrid.innerHTML = '';
-      const filtered = products.filter(product => {
-        const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.description.toLowerCase().includes(searchTerm);
-        const matchesPrice = product.price <= priceFilter;
-        return matchesCategory && matchesSearch && matchesPrice;
-      });
-      if (!filtered.length) {
-        productGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--muted);text-align:center;padding:2rem 0;">No products match your search and filters.</p>';
-        return;
-      }
-      filtered.forEach(product => {
-        const isWishlisted = wishlist.includes(product.id);
-        const card = document.createElement('article');
-        card.className = 'product-card';
-        card.innerHTML = `
-          <div class="product-thumb">
-            <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-wishlist="${product.id}" aria-label="Toggle wishlist"><i class="fas fa-heart"></i></button>
-            <img src="${product.image}" alt="${product.name}" />
-          </div>
-          <div class="product-info">
-            <div>
-              <h3>${product.name}</h3>
-              <p>${product.description}</p>
+        <!-- Screen 2: Date Selection -->
+        <div class="screen" id="screen2">
+            <h2>Pick a date for our romantic date</h2>
+            <input type="date" id="datePicker" min="">
+            <div class="button-group">
+                <button class="btn-back" id="backBtn1" type="button">Back</button>
+                <button class="btn-next" id="nextBtn1" type="button">Next</button>
             </div>
-            <div class="price-row">
-              <span class="price">${formatPrice(product.price)}</span>
-              <span class="stars" title="Rated ${product.rating} stars">${renderStars(product.rating)} ${product.reviews}</span>
+        </div>
+
+        <!-- Screen 3: Activity Selection -->
+        <div class="screen" id="screen3">
+            <h2>What should we do?</h2>
+            <div class="activity-grid">
+                <div class="activity-card" data-activity="coffee">☕ Coffee</div>
+                <div class="activity-card" data-activity="restaurant">🍽️ Restaurant</div>
+                <div class="activity-card" data-activity="pizza">🍕 Pizza</div>
+                <div class="activity-card" data-activity="park">🌳 Walk in the park</div>
+                <div class="activity-card" data-activity="cinema">🎬 Cinema</div>
             </div>
-            <button data-add="${product.id}">Add to Cart</button>
-          </div>
-        `;
-        productGrid.appendChild(card);
-      });
-    }
-
-    function renderCart() {
-      cartItemsEl.innerHTML = '';
-      if (!cart.length) {
-        cartItemsEl.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem 0;">Your cart is empty. Browse products to add items.</p>';
-      }
-      cart.forEach(item => {
-        const product = products.find(prod => prod.id === item.id);
-        const itemEl = document.createElement('div');
-        itemEl.className = 'cart-item';
-        itemEl.innerHTML = `
-          <img src="${product.image}" alt="${product.name}" />
-          <div class="item-details">
-            <div>
-              <h4>${product.name}</h4>
-              <small>${product.category} • ${product.description}</small>
+            <div class="button-group">
+                <button class="btn-back" id="backBtn2" type="button">Back</button>
+                <button class="btn-next" id="nextBtn2" type="button">Next</button>
             </div>
-            <div class="item-actions">
-              <div class="quantity-control">
-                <button data-decrease="${item.id}"><i class="fas fa-minus"></i></button>
-                <span>${item.quantity}</span>
-                <button data-increase="${item.id}"><i class="fas fa-plus"></i></button>
-              </div>
-              <button class="icon-btn" data-remove="${item.id}" style="padding:0.5rem 0.8rem;">Remove</button>
-            </div>
-          </div>
-        `;
-        cartItemsEl.appendChild(itemEl);
-      });
-      updateSummary();
-    }
+        </div>
 
-    function updateSummary() {
-      const subtotal = cart.reduce((sum, item) => {
-        const product = products.find(prod => prod.id === item.id);
-        return sum + product.price * item.quantity;
-      }, 0);
-      const tax = subtotal * 0.08;
-      shippingCost = shippingCost || (subtotal >= 150 || subtotal === 0 ? 0 : 15);
-      let discount = 0;
-      if (activePromo === 'TECH10') discount = subtotal * 0.1;
-      if (activePromo === 'HAVEN20') discount = subtotal * 0.2;
-      if (activePromo === 'FREEDEL') shippingCost = 0;
-      const total = Math.max(subtotal + tax + shippingCost - discount, 0);
+        <!-- Screen 4: Final -->
+        <div class="screen" id="screen4">
+            <div class="emoji">💖</div>
+            <div class="final-message">Уже не могу дождаться, когда мы увидимся ❤️</div>
+            <p style="color: #d63384; font-size: 1.2em; margin-top: 20px;" id="finalDetails"></p>
+        </div>
+    </div>
 
-      subtotalValue.textContent = formatPrice(subtotal);
-      taxValue.textContent = formatPrice(tax);
-      shippingValue.textContent = formatPrice(shippingCost);
-      discountValue.textContent = `-${formatPrice(discount)}`;
-      totalValue.textContent = formatPrice(total);
-      cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-      cartStatus.textContent = `${cart.length} item${cart.length === 1 ? '' : 's'} in your cart`;
-      saveState();
-    }
+    <script>
+        // ============================================================
+        // State management
+        // ============================================================
+        let currentStep = 1;
+        let selectedDate = '';
+        let selectedActivity = '';
 
-    function addToCart(productId) {
-      const existing = cart.find(item => item.id === productId);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({ id: productId, quantity: 1 });
-      }
-      renderCart();
-      toast('Added to cart successfully.', 'success');
-    }
+        // Set minimum date to today
+        const datePicker = document.getElementById('datePicker');
+        const today = new Date().toISOString().split('T')[0];
+        datePicker.setAttribute('min', today);
 
-    function removeFromCart(productId) {
-      const index = cart.findIndex(item => item.id === productId);
-      if (index !== -1) {
-        cart.splice(index, 1);
-        renderCart();
-        toast('Removed from cart.', 'info');
-      }
-    }
+        // ============================================================
+        // Floating hearts background
+        // ============================================================
+        function createFloatingHearts() {
+            const container = document.getElementById('heartsContainer');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '❤️'];
 
-    function changeQuantity(productId, delta) {
-      const item = cart.find(item => item.id === productId);
-      if (!item) return;
-      item.quantity = Math.max(1, item.quantity + delta);
-      renderCart();
-    }
-
-    function toggleCart(open) {
-      if (open) {
-        cartPanel.classList.add('open');
-        cartPanel.setAttribute('aria-hidden', 'false');
-      } else {
-        cartPanel.classList.remove('open');
-        cartPanel.setAttribute('aria-hidden', 'true');
-      }
-    }
-
-    function setActiveCategory(category) {
-      activeCategory = category;
-      filterPills.forEach(pill => pill.classList.toggle('active', pill.dataset.category === category));
-      renderProducts();
-    }
-
-    function filterProducts() {
-      searchTerm = searchInput.value.trim().toLowerCase();
-      priceFilter = Number(priceRange.value);
-      renderProducts();
-    }
-
-    function applyPromo() {
-      const code = promoCodeInput.value.trim().toUpperCase();
-      if (!code) {
-        promoMessage.textContent = 'Enter a discount code to save.';
-        return;
-      }
-      if (!discountCodes.hasOwnProperty(code)) {
-        promoMessage.textContent = 'Invalid code. Try TECH10, HAVEN20, or FREEDEL.';
-        return;
-      }
-      activePromo = code;
-      promoMessage.textContent = `Code ${code} applied. Enjoy your savings!`;
-      updateSummary();
-      toast(`Discount code ${code} applied.`, 'success');
-    }
-
-    function estimateShipping() {
-      const zip = shippingZipInput.value.trim();
-      if (!/^[0-9]{5}$/.test(zip)) {
-        shippingMessage.textContent = 'Enter a valid 5-digit ZIP code.';
-        return;
-      }
-      const zone = Number(zip[0]);
-      shippingCost = zone <= 3 ? 9.99 : zone <= 5 ? 12.49 : zone <= 7 ? 14.99 : 16.99;
-      shippingMessage.textContent = `Estimated shipping: ${formatPrice(shippingCost)} for ZIP ${zip}.`;
-      updateSummary();
-      toast('Shipping estimate updated.', 'info');
-    }
-
-    function toggleLogin() {
-      if (currentUser) {
-        currentUser = null;
-        toast('Logged out successfully.', 'info');
-      } else {
-        currentUser = { name: 'Alex', email: 'alex@techhaven.com' };
-        toast('Logged in as Alex.', 'success');
-      }
-      updateLoginState();
-      saveState();
-    }
-
-    function updateLoginState() {
-      if (currentUser) {
-        loginStatus.innerHTML = `<p>Signed in as <strong>${currentUser.name}</strong>. Your cart and wishlist are saved locally.</p>`;
-        authButton.textContent = 'Logout';
-      } else {
-        loginStatus.innerHTML = '<p>Welcome, guest. Sign in to sync your saved cart and wishlist.</p>';
-        authButton.textContent = 'Login';
-      }
-    }
-
-    function toggleWishlist(productId) {
-      if (wishlist.includes(productId)) {
-        const index = wishlist.indexOf(productId);
-        wishlist.splice(index, 1);
-        toast('Removed from wishlist.', 'info');
-      } else {
-        wishlist.push(productId);
-        toast('Added to wishlist.', 'success');
-      }
-      saveState();
-      renderProducts();
-    }
-
-    function setupCarousel() {
-      const slides = heroCarousel.querySelectorAll('.slide');
-      carouselControls.innerHTML = '';
-      slides.forEach((slide, idx) => {
-        const dot = document.createElement('button');
-        dot.addEventListener('click', () => setSlide(idx));
-        if (idx === 0) dot.classList.add('active');
-        carouselControls.appendChild(dot);
-      });
-      carouselInterval = setInterval(() => setSlide((activeSlide + 1) % slides.length), 6000);
-    }
-
-    function setSlide(index) {
-      const slides = heroCarousel.querySelectorAll('.slide');
-      slides[activeSlide].classList.remove('active');
-      carouselControls.children[activeSlide].classList.remove('active');
-      activeSlide = index;
-      slides[activeSlide].classList.add('active');
-      carouselControls.children[activeSlide].classList.add('active');
-    }
-
-    function handleBackToTop() {
-      backToTop.classList.toggle('visible', window.scrollY > 400);
-    }
-
-    function init() {
-      renderProducts();
-      renderCart();
-      updateLoginState();
-      setupCarousel();
-      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-      document.body.addEventListener('click', event => {
-        const addButton = event.target.closest('[data-add]');
-        if (addButton) {
-          addToCart(addButton.dataset.add);
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 3 + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                container.appendChild(heart);
+            }
         }
-        const removeButton = event.target.closest('[data-remove]');
-        if (removeButton) {
-          removeFromCart(removeButton.dataset.remove);
-        }
-        const decreaseButton = event.target.closest('[data-decrease]');
-        if (decreaseButton) {
-          changeQuantity(decreaseButton.dataset.decrease, -1);
-        }
-        const increaseButton = event.target.closest('[data-increase]');
-        if (increaseButton) {
-          changeQuantity(increaseButton.dataset.increase, 1);
-        }
-        const wishlistBtn = event.target.closest('[data-wishlist]');
-        if (wishlistBtn) {
-          toggleWishlist(wishlistBtn.dataset.wishlist);
-        }
-      });
 
-      document.querySelectorAll('.cart-toggle').forEach(button => button.addEventListener('click', () => toggleCart(true)));
-      document.querySelectorAll('.cart-close').forEach(button => button.addEventListener('click', () => toggleCart(false)));
-      cartOverlay.addEventListener('click', () => toggleCart(false));
-      menuToggle.addEventListener('click', () => navMenu.classList.toggle('show'));
-      filterPills.forEach(pill => pill.addEventListener('click', () => setActiveCategory(pill.dataset.category)));
-      searchInput.addEventListener('input', filterProducts);
-      priceRange.addEventListener('input', () => {
-        const value = Number(priceRange.value);
-        priceFilter = value;
-        filterProducts();
-      });
-      applyPromoBtn.addEventListener('click', applyPromo);
-      estimateShippingBtn.addEventListener('click', estimateShipping);
-      authButton.addEventListener('click', toggleLogin);
-      document.querySelector('.login-toggle').addEventListener('click', toggleLogin);
-      searchInput.addEventListener('keypress', event => { if (event.key === 'Enter') filterProducts(); });
-      window.addEventListener('scroll', handleBackToTop);
-      heroButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const target = button.dataset.target;
-          const element = document.getElementById(target);
-          if (element) element.scrollIntoView({ behavior: 'smooth' });
+        function createHeartParticles() {
+            const container = document.querySelector('.container');
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart-particle';
+                    heart.textContent = '❤️';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(heart);
+                }, i * 100);
+            }
+        }
+
+        // ============================================================
+        // Screen navigation
+        // ============================================================
+        function showScreen(screenNumber) {
+            // Reset the "No" button whenever we return to screen 1
+            if (screenNumber === 1) {
+                resetNoButton();
+            }
+
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('screen' + screenNumber).classList.add('active');
+            currentStep = screenNumber;
+
+            if (screenNumber === 4) {
+                createHeartParticles();
+                const activityNames = {
+                    'coffee': 'Coffee',
+                    'restaurant': 'Restaurant',
+                    'pizza': 'Pizza',
+                    'park': 'Walk in the park',
+                    'cinema': 'Cinema'
+                };
+                document.getElementById('finalDetails').textContent =
+                    `Date: ${selectedDate} | Activity: ${activityNames[selectedActivity]}`;
+            }
+        }
+
+        // ============================================================
+        // Evasive "No" button
+        // Single source of truth: one pointerdown handler, no
+        // competing click/pointerdown/pointermove listeners fighting
+        // each other (that was the cause of the mobile "Yes" bug too,
+        // since a global pointermove handler was interfering with taps).
+        // ============================================================
+        const noBtn = document.getElementById('noBtn');
+        let hasStartedEvading = false;
+        let noBtnWidth = 0;
+        let noBtnHeight = 0;
+
+        function getRandomPositionInViewport() {
+            const padding = 16;
+            // Use the FIXED, remembered size of the button rather than a
+            // fresh getBoundingClientRect() read — reading the rect mid
+            // CSS-transition (or during a reflow caused by switching to
+            // position:fixed) can momentarily return a stale or zeroed
+            // size on some mobile browsers, which previously produced an
+            // out-of-range / off-screen target position.
+            const maxX = Math.max(padding, window.innerWidth - noBtnWidth - padding);
+            const maxY = Math.max(padding, window.innerHeight - noBtnHeight - padding);
+
+            const x = padding + Math.random() * (maxX - padding);
+            const y = padding + Math.random() * (maxY - padding);
+
+            // Defensive clamp, just in case.
+            return {
+                x: Math.min(Math.max(x, 0), window.innerWidth - noBtnWidth),
+                y: Math.min(Math.max(y, 0), window.innerHeight - noBtnHeight)
+            };
+        }
+
+        function moveNoButton() {
+            if (currentStep !== 1) return;
+
+            if (!hasStartedEvading) {
+                // Measure ONCE, before we change positioning scheme, and
+                // lock in an explicit pixel width/height. This is the key
+                // fix: once evasive, the button's box size is fixed and
+                // can never be read as 0 or stale, which is what was
+                // causing it to fly off-screen after the first click.
+                const buttonRect = noBtn.getBoundingClientRect();
+                noBtnWidth = buttonRect.width;
+                noBtnHeight = buttonRect.height;
+
+                noBtn.style.width = noBtnWidth + 'px';
+                noBtn.style.height = noBtnHeight + 'px';
+                noBtn.classList.add('evasive');
+                noBtn.style.left = buttonRect.left + 'px';
+                noBtn.style.top = buttonRect.top + 'px';
+
+                // Force a reflow so the browser registers the starting
+                // position before we animate to the new one.
+                noBtn.offsetHeight;
+                hasStartedEvading = true;
+            }
+
+            const newPos = getRandomPositionInViewport();
+            noBtn.style.left = newPos.x + 'px';
+            noBtn.style.top = newPos.y + 'px';
+        }
+
+        function resetNoButton() {
+            hasStartedEvading = false;
+            noBtn.classList.remove('evasive');
+            noBtn.style.left = '';
+            noBtn.style.top = '';
+            noBtn.style.width = '';
+            noBtn.style.height = '';
+        }
+
+        // Single handler for both mouse and touch — covers tap, click,
+        // and hover-style approach. Using pointerdown (fires reliably on
+        // mobile, before any click) instead of mixing click + pointerdown.
+        noBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            moveNoButton();
         });
-      });
 
-      subscribeForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const email = subscribeEmail.value.trim();
-        if (!email || !email.includes('@')) {
-          newsletterMessage.textContent = 'Enter a valid email address to subscribe.';
-          newsletterMessage.style.color = '#ff5f7a';
-          return;
-        }
-        newsletterMessage.textContent = 'Subscription confirmed! Check your inbox for a welcome offer.';
-        newsletterMessage.style.color = '#39d98a';
-        subscribeEmail.value = '';
-        toast('Newsletter subscription received.', 'success');
-      });
+        // Also dodge when the pointer gets close (desktop hover-evade
+        // feel) — but only after the user actually tried touching/moving
+        // near it via pointerover, which works for mouse without
+        // interfering with mobile taps elsewhere on the page.
+        noBtn.addEventListener('pointerenter', () => {
+            // Only desktop mice send pointerenter from hovering without a
+            // touch; this keeps the playful "runs away on approach" feel
+            // on desktop while staying out of the way of mobile taps.
+            if (window.matchMedia('(pointer: fine)').matches) {
+                moveNoButton();
+            }
+        });
 
-      document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', () => navMenu.classList.remove('show'));
-      });
-    }
+        window.addEventListener('resize', () => {
+            if (!hasStartedEvading || currentStep !== 1) return;
 
-    init();
-  </script>
-  <script src="techhaven.js"></script>
+            const maxX = Math.max(16, window.innerWidth - noBtnWidth - 16);
+            const maxY = Math.max(16, window.innerHeight - noBtnHeight - 16);
+
+            const currentLeft = parseFloat(noBtn.style.left);
+            const currentTop = parseFloat(noBtn.style.top);
+
+            // Guard against NaN (e.g. if style.left was never set yet)
+            // so the button can never be pushed to an invalid position.
+            const safeLeft = Number.isFinite(currentLeft) ? currentLeft : 16;
+            const safeTop = Number.isFinite(currentTop) ? currentTop : 16;
+
+            noBtn.style.left = Math.min(Math.max(safeLeft, 0), maxX) + 'px';
+            noBtn.style.top = Math.min(Math.max(safeTop, 0), maxY) + 'px';
+        });
+
+        // ============================================================
+        // "Yes" button — simple, single pointerdown-driven click.
+        // (Previously this had both a click AND a preventDefault'ing
+        // pointerdown listener, which on many mobile browsers caused
+        // the click event to never fire, making Yes appear "stuck".)
+        // ============================================================
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        document.getElementById('nextBtn1').addEventListener('click', () => {
+            selectedDate = datePicker.value;
+            if (selectedDate) {
+                showScreen(3);
+            } else {
+                alert('Please select a date!');
+            }
+        });
+
+        document.getElementById('backBtn1').addEventListener('click', () => {
+            showScreen(1);
+        });
+
+        document.getElementById('backBtn2').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        // Activity selection — single click handler per card (no
+        // duplicate pointerdown handler racing it).
+        document.querySelectorAll('.activity-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.activity-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                card.classList.add('selected');
+                selectedActivity = card.dataset.activity;
+            });
+        });
+
+        document.getElementById('nextBtn2').addEventListener('click', () => {
+            if (selectedActivity) {
+                showScreen(4);
+            } else {
+                alert('Please select an activity!');
+            }
+        });
+
+        // Initialize
+        createFloatingHearts();
+    </script>
 </body>
 </html>
