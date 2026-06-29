@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Date Question ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0ec 50%, #ffd6e5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating hearts background */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 105, 180, 0.3);
+            font-size: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+                opacity: 0.6;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: clamp(30px, 5vh, 50px) clamp(20px, 4vw, 40px);
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.2);
+        }
+
+        h2 {
+            color: #d63384;
+            font-size: 2em;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: clamp(12px, 3vh, 15px) clamp(30px, 6vw, 40px);
+            font-size: clamp(1em, 2.5vw, 1.1em);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
+            color: white;
+        }
+
+        .btn-yes:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 64, 129, 0.5);
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #ffb3c6 0%, #ff8fab 100%);
+            color: white;
+            transition: all 0.15s ease-out;
+            will-change: transform, left, top;
+        }
+
+        .btn-no.evasive {
+            position: absolute;
+            transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .btn-no:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 143, 171, 0.5);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 64, 129, 0.5);
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #ffb3c6 0%, #ff8fab 100%);
+            color: white;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 143, 171, 0.5);
+        }
+
+        input[type="date"] {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            border: 2px solid #ffb3c6;
+            border-radius: 15px;
+            background: white;
+            color: #d63384;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #ff4081;
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.1);
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .activity-card {
+            padding: clamp(15px, 3vh, 20px) clamp(15px, 3vw, 20px);
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0ec 100%);
+            border: 2px solid #ffb3c6;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(1em, 2.5vw, 1.1em);
+            color: #d63384;
+            font-weight: 600;
+            min-height: 60px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+            background: linear-gradient(135deg, #ffe0ec 0%, #ffd6e5 100%);
+        }
+
+        .activity-card.selected {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff4081 100%);
+            color: white;
+            border-color: #ff4081;
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(255, 64, 129, 0.4);
+        }
+
+        .final-message {
+            font-size: 2.5em;
+            color: #d63384;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .heart-particle {
+            position: absolute;
+            color: #ff4081;
+            font-size: 24px;
+            animation: heartFloat 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-50px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: clamp(1.5em, 6vw, 2.5em);
+            }
+            
+            h2 {
+                font-size: clamp(1.2em, 5vw, 2em);
+            }
+            
+            .button-group {
+                gap: 15px;
+            }
+            
+            .activity-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .final-message {
+                font-size: clamp(1.5em, 6vw, 2.5em);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95vw;
+                border-radius: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+                padding-bottom: max(30px, env(safe-area-inset-bottom));
+            }
+        }
+
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-container" id="heartsContainer"></div>
+
+    <div class="container">
+        <!-- Screen 1: Landing -->
+        <div class="screen active" id="screen1">
+            <div class="emoji">💕</div>
+            <h1>Will you go on a date with me?</h1>
+            <div class="button-group">
+                <button class="btn-yes" id="yesBtn">Yes</button>
+                <button class="btn-no" id="noBtn">No</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Date Selection -->
+        <div class="screen" id="screen2">
+            <h2>Pick a date for our romantic date</h2>
+            <input type="date" id="datePicker" min="">
+            <div class="button-group">
+                <button class="btn-back" id="backBtn1">Back</button>
+                <button class="btn-next" id="nextBtn1">Next</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Activity Selection -->
+        <div class="screen" id="screen3">
+            <h2>What should we do?</h2>
+            <div class="activity-grid">
+                <div class="activity-card" data-activity="coffee">☕ Coffee</div>
+                <div class="activity-card" data-activity="restaurant">🍽️ Restaurant</div>
+                <div class="activity-card" data-activity="pizza">🍕 Pizza</div>
+                <div class="activity-card" data-activity="park">🌳 Walk in the park</div>
+                <div class="activity-card" data-activity="cinema">🎬 Cinema</div>
+            </div>
+            <div class="button-group">
+                <button class="btn-back" id="backBtn2">Back</button>
+                <button class="btn-next" id="nextBtn2">Next</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Final -->
+        <div class="screen" id="screen4">
+            <div class="emoji">💖</div>
+            <div class="final-message">I can't wait for our date ❤️</div>
+            <p style="color: #d63384; font-size: 1.2em; margin-top: 20px;" id="finalDetails"></p>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentStep = 1;
+        let selectedDate = '';
+        let selectedActivity = '';
+
+        // Set minimum date to today
+        const datePicker = document.getElementById('datePicker');
+        const today = new Date().toISOString().split('T')[0];
+        datePicker.setAttribute('min', today);
+
+        // Create floating hearts background
+        function createFloatingHearts() {
+            const container = document.getElementById('heartsContainer');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '❤️'];
+            
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 3 + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                container.appendChild(heart);
+            }
+        }
+
+        // Create heart particles for final screen
+        function createHeartParticles() {
+            const container = document.querySelector('.container');
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart-particle';
+                    heart.textContent = '❤️';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    container.appendChild(heart);
+                }, i * 100);
+            }
+        }
+
+        // Screen navigation
+        function showScreen(screenNumber) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('screen' + screenNumber).classList.add('active');
+            currentStep = screenNumber;
+
+            if (screenNumber === 4) {
+                createHeartParticles();
+                const activityNames = {
+                    'coffee': 'Coffee',
+                    'restaurant': 'Restaurant',
+                    'pizza': 'Pizza',
+                    'park': 'Walk in the park',
+                    'cinema': 'Cinema'
+                };
+                document.getElementById('finalDetails').textContent = 
+                    `Date: ${selectedDate} | Activity: ${activityNames[selectedActivity]}`;
+            }
+        }
+
+        // Evasive "No" button behavior - COMPLETELY REWRITTEN FOR RELIABILITY
+        const noBtn = document.getElementById('noBtn');
+        const buttonGroup = document.querySelector('.button-group');
+        let hasStartedEvading = false;
+        let isMoving = false;
+        let animationFrameId = null;
+        let lastPosition = { x: 0, y: 0 };
+        let targetPosition = { x: 0, y: 0 };
+
+        // Get container bounds with padding
+        function getContainerBounds() {
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            const buttonRect = noBtn.getBoundingClientRect();
+            const padding = 10;
+            
+            return {
+                minX: containerRect.left + padding,
+                maxX: containerRect.right - buttonRect.width - padding,
+                minY: containerRect.top + padding,
+                maxY: containerRect.bottom - buttonRect.height - padding
+            };
+        }
+
+        // Convert viewport coordinates to container-relative
+        function viewportToContainer(viewportX, viewportY) {
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            return {
+                x: viewportX - containerRect.left,
+                y: viewportY - containerRect.top
+            };
+        }
+
+        // Get random position within bounds
+        function getRandomPosition() {
+            const bounds = getContainerBounds();
+            const viewportX = bounds.minX + Math.random() * (bounds.maxX - bounds.minX);
+            const viewportY = bounds.minY + Math.random() * (bounds.maxY - bounds.minY);
+            return viewportToContainer(viewportX, viewportY);
+        }
+
+        // Start evading - called immediately on any interaction
+        function startEvading() {
+            if (hasStartedEvading) return;
+            hasStartedEvading = true;
+            
+            // Get current position and convert to absolute
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            const buttonRect = noBtn.getBoundingClientRect();
+            
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = (buttonRect.left - containerRect.left) + 'px';
+            noBtn.style.top = (buttonRect.top - containerRect.top) + 'px';
+            noBtn.classList.add('evasive');
+            
+            // Set initial target
+            const currentPos = viewportToContainer(buttonRect.left, buttonRect.top);
+            lastPosition = { ...currentPos };
+            targetPosition = getRandomPosition();
+            
+            isMoving = true;
+            startMovementLoop();
+        }
+
+        // Smooth movement using requestAnimationFrame
+        function startMovementLoop() {
+            if (!isMoving) return;
+            
+            function move() {
+                if (!isMoving) return;
+                
+                const currentBounds = getContainerBounds();
+                
+                // Check if we've reached target (within 5px)
+                const dx = targetPosition.x - lastPosition.x;
+                const dy = targetPosition.y - lastPosition.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 5) {
+                    // Reached target, pick new random position
+                    targetPosition = getRandomPosition();
+                }
+                
+                // Smooth interpolation (ease towards target)
+                const speed = 0.15; // Smoothness factor
+                lastPosition.x += (targetPosition.x - lastPosition.x) * speed;
+                lastPosition.y += (targetPosition.y - lastPosition.y) * speed;
+                
+                // Clamp to bounds
+                lastPosition.x = Math.max(currentBounds.minX - document.querySelector('.container').getBoundingClientRect().left,
+                                          Math.min(currentBounds.maxX - document.querySelector('.container').getBoundingClientRect().left,
+                                                   lastPosition.x));
+                lastPosition.y = Math.max(currentBounds.minY - document.querySelector('.container').getBoundingClientRect().top,
+                                          Math.min(currentBounds.maxY - document.querySelector('.container').getBoundingClientRect().top,
+                                                   lastPosition.y));
+                
+                // Apply position
+                noBtn.style.left = lastPosition.x + 'px';
+                noBtn.style.top = lastPosition.y + 'px';
+                
+                animationFrameId = requestAnimationFrame(move);
+            }
+            
+            animationFrameId = requestAnimationFrame(move);
+        }
+
+        // Stop movement
+        function stopMovement() {
+            isMoving = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        // Instant teleport (for click/tap interception)
+        function teleportButton() {
+            const newPos = getRandomPosition();
+            lastPosition = { ...newPos };
+            targetPosition = { ...newPos };
+            
+            // Disable transition for instant move
+            noBtn.style.transition = 'none';
+            noBtn.style.left = newPos.x + 'px';
+            noBtn.style.top = newPos.y + 'px';
+            
+            // Force reflow
+            noBtn.offsetHeight;
+            
+            // Re-enable transition
+            noBtn.style.transition = 'all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        }
+
+        // Universal pointer down handler - catches ALL interaction attempts
+        function handlePointerDown(e) {
+            if (currentStep !== 1) return;
+            
+            const buttonRect = noBtn.getBoundingClientRect();
+            
+            // Check if pointer is over or near the button (larger hit area for reliability)
+            const isNearButton = 
+                e.clientX >= buttonRect.left - 50 &&
+                e.clientX <= buttonRect.right + 50 &&
+                e.clientY >= buttonRect.top - 50 &&
+                e.clientY <= buttonRect.bottom + 50;
+            
+            if (isNearButton) {
+                // Immediately start evading and teleport
+                if (!hasStartedEvading) {
+                    startEvading();
+                } else {
+                    teleportButton();
+                }
+                
+                // Block the interaction
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+        
+        // Direct click prevention on the No button itself
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            if (!hasStartedEvading) {
+                startEvading();
+            } else {
+                teleportButton();
+            }
+        });
+        
+        // Direct pointerdown on the button for immediate response
+        noBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!hasStartedEvading) {
+                startEvading();
+            } else {
+                teleportButton();
+            }
+        });
+
+        // Handle pointer move to start evasion when cursor approaches
+        function handlePointerMove(e) {
+            if (currentStep !== 1 || hasStartedEvading) return;
+            
+            const buttonRect = noBtn.getBoundingClientRect();
+            const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+            const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+            
+            const distance = Math.sqrt(
+                Math.pow(e.clientX - buttonCenterX, 2) + 
+                Math.pow(e.clientY - buttonCenterY, 2)
+            );
+            
+            // Start evading when pointer is within 100px
+            if (distance < 100) {
+                startEvading();
+            }
+        }
+
+        // Handle resize/orientation change to keep button in bounds
+        function handleResize() {
+            if (!hasStartedEvading) return;
+            
+            const bounds = getContainerBounds();
+            const containerRect = document.querySelector('.container').getBoundingClientRect();
+            
+            // Clamp current position to new bounds
+            lastPosition.x = Math.max(0,
+                Math.min(bounds.maxX - containerRect.left, lastPosition.x));
+            lastPosition.y = Math.max(0,
+                Math.min(bounds.maxY - containerRect.top, lastPosition.y));
+            
+            noBtn.style.left = lastPosition.x + 'px';
+            noBtn.style.top = lastPosition.y + 'px';
+        }
+
+        // Use ONLY pointer events - unified for mouse and touch
+        document.addEventListener('pointermove', handlePointerMove, { passive: true });
+        
+        // Handle window resize
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(handleResize, 100);
+        });
+
+        // Event listeners
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        document.getElementById('yesBtn').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            showScreen(2);
+        });
+
+        // Reset No button state when going back to screen 1
+        const originalShowScreen = showScreen;
+        showScreen = function(screenNumber) {
+            if (screenNumber === 1) {
+                // Reset No button to normal flow
+                stopMovement();
+                noBtn.classList.remove('evasive');
+                noBtn.style.position = '';
+                noBtn.style.left = '';
+                noBtn.style.top = '';
+                noBtn.style.transition = '';
+                hasStartedEvading = false;
+                isMoving = false;
+                lastPosition = { x: 0, y: 0 };
+                targetPosition = { x: 0, y: 0 };
+            }
+            originalShowScreen(screenNumber);
+        };
+
+        document.getElementById('nextBtn1').addEventListener('click', () => {
+            selectedDate = datePicker.value;
+            if (selectedDate) {
+                showScreen(3);
+            } else {
+                alert('Please select a date!');
+            }
+        });
+
+        document.getElementById('backBtn1').addEventListener('click', () => {
+            showScreen(1);
+        });
+
+        document.getElementById('backBtn2').addEventListener('click', () => {
+            showScreen(2);
+        });
+
+        // Activity selection (with pointer events for mobile)
+        document.querySelectorAll('.activity-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.activity-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                card.classList.add('selected');
+                selectedActivity = card.dataset.activity;
+            });
+            
+            card.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.activity-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                card.classList.add('selected');
+                selectedActivity = card.dataset.activity;
+            });
+        });
+
+        document.getElementById('nextBtn2').addEventListener('click', () => {
+            if (selectedActivity) {
+                showScreen(4);
+            } else {
+                alert('Please select an activity!');
+            }
+        });
+        
+        document.getElementById('nextBtn2').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (selectedActivity) {
+                showScreen(4);
+            } else {
+                alert('Please select an activity!');
+            }
+        });
+
+        // Initialize
+        createFloatingHearts();
+    </script>
+</body>
+</html>
